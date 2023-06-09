@@ -16,16 +16,19 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Stack(
+        alignment: AlignmentDirectional.topStart,
         children: [
-          SizedBox(height: 24,),
-          CustomRow(),
           Expanded(
             child: YandexMap(
               onMapCreated: (YandexMapController controller) {
                 // Perform map setup and configuration here
               },
             ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 24.0), // Add 16.0 units of top padding
+            child: CustomRow(),
           ),
         ],
       ),
