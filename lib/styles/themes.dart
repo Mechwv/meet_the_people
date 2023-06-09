@@ -12,7 +12,16 @@ class Themes {
       ),
       iconTheme: IconThemeData(color: defaultAppColor4),
       buttonTheme: const ButtonThemeData(
-        buttonColor: defaultAppColor3,
+        buttonColor: defaultAppColor4,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: defaultAppColor4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        ),
       ),
       textSelectionTheme:
           const TextSelectionThemeData(cursorColor: defaultAppWhiteColor),
@@ -78,6 +87,15 @@ class Themes {
     ),
     floatingActionButtonTheme:
         const FloatingActionButtonThemeData(backgroundColor: defaultAppColor),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: defaultAppColor4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      ),
+    ),
     sliderTheme: const SliderThemeData(
       inactiveTickMarkColor: Colors.transparent,
       activeTickMarkColor: Colors.transparent,
