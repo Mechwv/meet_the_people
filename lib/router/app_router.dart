@@ -3,6 +3,7 @@ import 'package:meet_the_people/screens/otp_page.dart';
 import 'package:meet_the_people/constants/screens.dart' as screens;
 import 'package:meet_the_people/screens/otp_verification_page.dart';
 
+import '../screens/map/map.dart';
 import 'custom_page_route.dart';
 
 class AppRouter {
@@ -16,7 +17,7 @@ class AppRouter {
             direction: AxisDirection.down, child: const OtpVerification());
       default:
         return CustomPageRoute(
-            direction: AxisDirection.down, child: OtpVerification());
+            direction: AxisDirection.down, child: MapPage());
     }
   }
 }
