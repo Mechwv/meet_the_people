@@ -1,4 +1,6 @@
 import 'package:get_it/get_it.dart';
+import 'package:meet_the_people/business_logic/cubit/map_cubit/map_cubit.dart';
+import 'package:meet_the_people/business_logic/cubit/profile_cubit/profile_cubit.dart';
 
 import '../../business_logic/cubit/global_cubit/global_cubit.dart';
 import '../../router/app_router.dart';
@@ -19,5 +21,11 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<GlobalCubit>(
     () => GlobalCubit(),
+  );
+  sl.registerLazySingleton<ProfileCubit>(
+        () => ProfileCubit(),
+  );
+  sl.registerLazySingleton<MapCubit>(
+        () => MapCubit(),
   );
 }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meet_the_people/business_logic/cubit/map_cubit/map_cubit.dart';
 import 'package:meet_the_people/router/app_router.dart';
 import 'package:meet_the_people/styles/themes.dart';
 import 'package:sizer/sizer.dart';
 
 import 'business_logic/cubit/global_cubit/global_cubit.dart';
 import 'business_logic/cubit/observer.dart';
+import 'business_logic/cubit/profile_cubit/profile_cubit.dart';
 import 'data/di/di.dart';
 import 'data/source/local/my_shared_preferences.dart';
 
@@ -39,6 +41,12 @@ class _MyAppState extends State<MyApp> {
       providers: [
         BlocProvider(
           create: (context) => sl<GlobalCubit>(),
+        ),
+        BlocProvider(
+          create: (context) => sl<ProfileCubit>(),
+        ),
+        BlocProvider(
+          create: (context) => sl<MapCubit>(),
         ),
       ],
       child: BlocBuilder<GlobalCubit, GlobalStates>(
