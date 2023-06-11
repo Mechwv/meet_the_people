@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meet_the_people/screens/map/map.dart';
 
 import '../../business_logic/cubit/profile_cubit/profile_cubit.dart';
+import '../../constants/constant_methods.dart';
 import '../../data/di/di.dart';
 import '../profile/profile_screen.dart';
 
@@ -16,7 +18,7 @@ class AppLayout extends StatefulWidget {
 class _AppLayoutState extends State<AppLayout> {
   late int _selectedIndex;
   static const List<Widget> _navigationBarScreenList = <Widget>[
-    ProfileScreen(),
+    MapPage(),
     ProfileScreen(),
     ProfileScreen(),
   ];
@@ -24,6 +26,7 @@ class _AppLayoutState extends State<AppLayout> {
   @override
   void initState() {
     _selectedIndex = widget.route ?? 0;
+    locationPermission();
     super.initState();
   }
 
@@ -42,12 +45,12 @@ class _AppLayoutState extends State<AppLayout> {
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+              icon: Icon(Icons.map),
+              label: 'Map',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_work_rounded),
-              label: 'Booking',
+              icon: Icon(Icons.chat),
+              label: 'Chat',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),

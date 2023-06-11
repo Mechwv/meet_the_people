@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:meet_the_people/business_logic/cubit/map_cubit/map_cubit.dart';
 import 'package:meet_the_people/widgets/top_row.dart';
 import 'package:meet_the_people/widgets/top_switch.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+
+import '../../data/di/di.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -19,17 +22,10 @@ class _MapPageState extends State<MapPage> {
       body: Stack(
         alignment: AlignmentDirectional.topStart,
         children: [
-          Expanded(
-            child: YandexMap(
-              onMapCreated: (YandexMapController controller) {
-                // Perform map setup and configuration here
-              },
-            ),
+          YandexMap(
+            onMapCreated: sl<MapCubit>().onMapCreated
           ),
-          Padding(
-            padding: EdgeInsets.only(top: 24.0), // Add 16.0 units of top padding
-            child: CustomRow(),
-          ),
+          CustomRow(),
         ],
       ),
     );
