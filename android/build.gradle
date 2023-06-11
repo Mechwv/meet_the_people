@@ -1,5 +1,7 @@
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext {
+        kotlin_version = '1.7.10'
+    }
     repositories {
         google()
         mavenCentral()
@@ -17,7 +19,7 @@ allprojects {
         mavenCentral()
         configurations.all{
             resolutionStrategy{
-                force "com.google.android.gms:play-services-location:21.0.1"
+                force "com.google.android.gms:play-services-location:20.0.0"
             }
         }
     }

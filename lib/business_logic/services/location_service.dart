@@ -9,7 +9,7 @@ class LocationService {
 
   final _pointsController = StreamController<Point>();
   Stream<Point> get points => _pointsController.stream;
-  
+
   void fetchLocation() {
     locationSubscription = location.onLocationChanged
         .listen((LocationData locationData) {
@@ -67,9 +67,11 @@ class LocationService {
     }
 
     locationData = await location.getLocation();
-    return Point(
+    final p = Point(
         latitude: locationData.latitude!,
         longitude: locationData.longitude!
     );
+    print("_POSITION: $p");
+    return p;
   }
 }
