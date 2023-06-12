@@ -27,14 +27,30 @@ class _MapPageState extends State<MapPage> {
           return Stack(
             alignment: AlignmentDirectional.topStart,
             children: [
-              YandexMap(
-                mapObjects: model.mapObjects,
-                onMapCreated: model.onMapCreated,
-                // onUserLocationAdded: (UserLocationView view) async {
-                //   return view.copyWith(
-                //     arrow: await model.createUserMark()
-                //   );
-                // }
+              Stack(
+                alignment: AlignmentDirectional.bottomEnd,
+                children: [
+                  YandexMap(
+                    mapObjects: model.mapObjects,
+                    onMapCreated: model.onMapCreated,
+                    // onUserLocationAdded: (UserLocationView view) async {
+                    //   return view.copyWith(
+                    //     arrow: await model.createUserMark()
+                    //   );
+                    // }
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 32.0, right: 16.0),
+                    child: FloatingActionButton(
+                      onPressed: model.moveCameraOnUser,
+                      child:
+                      Icon(
+                        Icons.my_location,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                ],
               ),
               CustomRow(),
             ],

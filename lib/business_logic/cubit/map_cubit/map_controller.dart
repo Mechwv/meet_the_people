@@ -12,7 +12,9 @@ class MapController with ChangeNotifier {
   final List<MapObject> _objectsList = [];
   late YandexMapController? _controller;
   static const MapObjectId _posId = MapObjectId('positionMark');
-  static const double _fixedZoom = 12.5;
+  static const MapObjectId _radId = MapObjectId('searchRadius');
+  static const double _fixedZoom = 13.5;
+  static const double _fixedRadius = 1500;
   static const animation =
   MapAnimation(type: MapAnimationType.smooth, duration: 1.0);
   final List<Point> points = [];
@@ -32,14 +34,17 @@ class MapController with ChangeNotifier {
     locService.fetchLocation();
     locService.points.listen((event) async {
       points.add(event);
-      _moveCamera(event.latitude, event.longitude);
-      _updatePositionMark();
+      // _moveCamera(event.latitude, event.longitude);
       _updateMapObjects();
     });
     print("_END_FETCH_POS");
   }
 
-  void _moveCamera(double lat, double long) {
+  void moveCameraOnUser() {
+    _moveCamera(lat: points.last.latitude, long: points.last.longitude);
+  }
+
+  void _moveCamera({required double lat, required double long}) {
     _controller?.moveCamera(
         CameraUpdate.newCameraPosition(CameraPosition(
             target: Point(latitude: lat, longitude: long), zoom: _fixedZoom)),
@@ -50,6 +55,7 @@ class MapController with ChangeNotifier {
     sl<LocationService>().getCurrentLocation().then((value) async {
       points.add(value);
       _initPositionMark();
+      _initPositionRadius();
     });
   }
 
@@ -69,6 +75,14 @@ class MapController with ChangeNotifier {
     print("_END_INIT_POS");
   }
 
+  void _initPositionRadius() async {
+    if (_objectsList.any((el) => el.mapId == _radId)) {
+      return;
+    }
+    _objectsList.add(createSearchRadius());
+  }
+
+
   void _updatePositionMark() async {
     if (!_objectsList.any((el) => el.mapId == _posId)) {
       return;
@@ -80,27 +94,67 @@ class MapController with ChangeNotifier {
     );
   }
 
+  void _updatePositionRadius() async {
+    if (!_objectsList.any((el) => el.mapId == _radId)) {
+      return;
+    }
+    final placemark = _objectsList.firstWhere((el) => el.mapId == _radId)
+    as CircleMapObject;
+    _objectsList[_objectsList.indexOf(placemark)] = placemark.copyWith(
+      circle: Circle(
+          center: Point(latitude: points.last.latitude, longitude: points.last.longitude),
+          radius: _fixedRadius
+      )
+    );
+  }
+
+  // Future<Uint8List> _rawPositionPlacemark() async {
+  //   final recorder = PictureRecorder();
+  //   final canvas = Canvas(recorder);
+  //   final size = Size(40, 40);
+  //   final fillPaint = Paint()
+  //     ..color = Colors.blue[300]!
+  //     ..style = PaintingStyle.fill;
+  //   final strokePaint = Paint()
+  //     ..color = Colors.black
+  //     ..style = PaintingStyle.stroke
+  //     ..strokeWidth = 4;
+  //   final radius = 20.0;
+  //   final circleOffset = Offset(size.height / 2, size.width / 2);
+  //   canvas.drawCircle(circleOffset, radius, fillPaint);
+  //   canvas.drawCircle(circleOffset, radius, strokePaint);
+  //   final image = await recorder
+  //       .endRecording()
+  //       .toImage(size.width.toInt(), size.height.toInt());
+  //   final pngBytes = await image.toByteData(format: ImageByteFormat.png);
+  //   return pngBytes!.buffer.asUint8List();
+  // }
+
   Future<Uint8List> _rawPositionPlacemark() async {
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder);
-    final size = Size(40, 40);
+    final size = Size(50, 50);
     final fillPaint = Paint()
-      ..color = Colors.blue[300]!
+      ..color = Colors.blue[800]!
       ..style = PaintingStyle.fill;
     final strokePaint = Paint()
-      ..color = Colors.black
+      ..color = Colors.white
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
+      ..strokeWidth = 5;
     final radius = 20.0;
+
     final circleOffset = Offset(size.height / 2, size.width / 2);
+
     canvas.drawCircle(circleOffset, radius, fillPaint);
     canvas.drawCircle(circleOffset, radius, strokePaint);
-    final image = await recorder
-        .endRecording()
-        .toImage(size.width.toInt(), size.height.toInt());
+
+    final image = await recorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
     final pngBytes = await image.toByteData(format: ImageByteFormat.png);
+
     return pngBytes!.buffer.asUint8List();
   }
+
+
 
   Future<PlacemarkMapObject> createUserMark() async {
     final placemark = PlacemarkMapObject(
@@ -114,8 +168,23 @@ class MapController with ChangeNotifier {
     return placemark;
   }
 
+  CircleMapObject createSearchRadius() {
+    final placemark = CircleMapObject(
+      mapId: _radId,
+      circle: Circle(
+          center: Point(latitude: 55.781863, longitude: 37.451159),
+          radius: _fixedRadius
+      ),
+      strokeColor: Colors.blue[700]!,
+      strokeWidth: 0,
+      fillColor: Color.fromRGBO(0,111,253,0.17),
+    );
+    return placemark;
+  }
+
   void _updateMapObjects() async {
     _updatePositionMark();
+    _updatePositionRadius();
     notifyListeners();
   }
 
