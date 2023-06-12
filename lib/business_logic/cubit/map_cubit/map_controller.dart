@@ -3,11 +3,14 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:meet_the_people/business_logic/cubit/global_cubit/global_cubit.dart';
+import 'package:meet_the_people/business_logic/cubit/people_cubit/people_cubit.dart';
 import 'package:meet_the_people/business_logic/services/location_service.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 import '../../../constants/constant_methods.dart';
 import '../../../data/di/di.dart';
+import '../../../data/repository/people_repository.dart';
 
 class MapController with ChangeNotifier {
   final List<MapObject> _objectsList = [];
@@ -19,6 +22,15 @@ class MapController with ChangeNotifier {
   static const animation =
       MapAnimation(type: MapAnimationType.smooth, duration: 1.0);
   final List<Point> points = [];
+  final _fixedOpacity = 0.95;
+
+  final List<Point> people = [
+    Point(latitude: 55.63250623928817, longitude: 37.41819001867677),
+    Point(latitude: 55.626336887387964,longitude:  37.41919146329349),
+    Point(latitude: 55.62370843001374, longitude: 37.42099970440077),
+    Point(latitude: 55.62318901952856, longitude: 37.42166034441598),
+    Point(latitude: 55.62306703576079, longitude: 37.42300944086804),
+  ];
 
   get mapObjects => _objectsList;
 
@@ -68,18 +80,10 @@ class MapController with ChangeNotifier {
     final placemark = PlacemarkMapObject(
       mapId: _posId,
       point: points.last,
-      opacity: 0.85,
-      icon: PlacemarkIcon.single(
-        PlacemarkIconStyle(
-          image: await downloadResizePictureCircle(
-              'https://i1.sndcdn.com/avatars-000290781095-i22idu-t240x240.jpg',
-              size: 110,
-              addBorder: true,
-              borderColor: Colors.white,
-              borderSize: 10),
-        ),
+      opacity: _fixedOpacity,
+      icon: await _createAvatar(
+        'https://i1.sndcdn.com/avatars-000290781095-i22idu-t240x240.jpg',
       ),
-      //     image: BitmapDescriptor.fromBytes(await _rawPositionPlacemark()))),
       onTap: (PlacemarkMapObject self, Point point) =>
           print('Tapped me at $point'),
     );
@@ -117,6 +121,22 @@ class MapController with ChangeNotifier {
                 latitude: points.last.latitude,
                 longitude: points.last.longitude),
             radius: _fixedRadius));
+  }
+
+  void _populateMap() async {
+    final list = List<Future<PlacemarkMapObject>>.generate(5, (i) async {
+      return PlacemarkMapObject(
+          opacity: _fixedOpacity,
+          mapId: MapObjectId(sl<GlobalCubit>().uuids[i]),
+          point: people[i],
+        icon: await _createAvatar(sl<PeopleCubit>().peopleNear[i].avatar)
+      );
+    });
+    final res = await Future.wait(list);
+    res.forEach((element) {
+      print(element.mapId);
+    });
+    _objectsList.addAll(res);
   }
 
   Future<Uint8List> _rawPositionPlacemark() async {
@@ -157,6 +177,16 @@ class MapController with ChangeNotifier {
     return placemark;
   }
 
+  Future<PlacemarkIcon> _createAvatar(String link) async {
+    return PlacemarkIcon.single(PlacemarkIconStyle(
+      image: await downloadResizePictureCircle(link,
+          size: 110,
+          addBorder: true,
+          borderColor: Colors.white,
+          borderSize: 10),
+    ));
+  }
+
   CircleMapObject createSearchRadius() {
     final placemark = CircleMapObject(
       mapId: _radId,
@@ -175,6 +205,7 @@ class MapController with ChangeNotifier {
   void _updateMapObjects() async {
     _updatePositionMark();
     _updatePositionRadius();
+    _populateMap();
     notifyListeners();
   }
 }
