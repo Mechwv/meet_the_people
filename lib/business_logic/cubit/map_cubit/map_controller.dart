@@ -68,7 +68,7 @@ class MapController with ChangeNotifier {
     final placemark = PlacemarkMapObject(
       mapId: _posId,
       point: points.last,
-      opacity: 0.75,
+      opacity: 0.85,
       icon: PlacemarkIcon.single(
         PlacemarkIconStyle(
           image: await downloadResizePictureCircle(

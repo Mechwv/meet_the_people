@@ -5,7 +5,9 @@ import 'package:meet_the_people/business_logic/cubit/people_cubit/people_cubit.d
 import 'package:meet_the_people/business_logic/cubit/profile_cubit/profile_cubit.dart';
 import 'package:meet_the_people/business_logic/services/location_service.dart';
 
+import '../../business_logic/cubit/auth/auth_cubit.dart';
 import '../../business_logic/cubit/global_cubit/global_cubit.dart';
+import '../../business_logic/cubit/message_send/message_send_cubit.dart';
 import '../../router/app_router.dart';
 import '../source/local/my_shared_preferences.dart';
 import '../source/network/my_dio.dart';
@@ -36,6 +38,12 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<MapCubit>(
         () => MapCubit(),
+  );
+  sl.registerLazySingleton<AuthCubit>(
+        () => AuthCubit(),
+  );
+  sl.registerLazySingleton<MessageSendCubit>(
+        () => MessageSendCubit(),
   );
   sl.registerLazySingleton<LocationService>(
           () => LocationService()

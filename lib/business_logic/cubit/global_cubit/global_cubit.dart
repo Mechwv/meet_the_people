@@ -29,7 +29,7 @@ class GlobalCubit extends Cubit<GlobalStates> {
   }
 
   void initSetup() {
-    uuids.addAll(uuidGen(20));
+    uuids.addAll(uuidGen(5));
     print("GLOBAL_SET_UP_OK $uuids");
   }
 }
