@@ -108,28 +108,6 @@ class MapController with ChangeNotifier {
     );
   }
 
-  // Future<Uint8List> _rawPositionPlacemark() async {
-  //   final recorder = PictureRecorder();
-  //   final canvas = Canvas(recorder);
-  //   final size = Size(40, 40);
-  //   final fillPaint = Paint()
-  //     ..color = Colors.blue[300]!
-  //     ..style = PaintingStyle.fill;
-  //   final strokePaint = Paint()
-  //     ..color = Colors.black
-  //     ..style = PaintingStyle.stroke
-  //     ..strokeWidth = 4;
-  //   final radius = 20.0;
-  //   final circleOffset = Offset(size.height / 2, size.width / 2);
-  //   canvas.drawCircle(circleOffset, radius, fillPaint);
-  //   canvas.drawCircle(circleOffset, radius, strokePaint);
-  //   final image = await recorder
-  //       .endRecording()
-  //       .toImage(size.width.toInt(), size.height.toInt());
-  //   final pngBytes = await image.toByteData(format: ImageByteFormat.png);
-  //   return pngBytes!.buffer.asUint8List();
-  // }
-
   Future<Uint8List> _rawPositionPlacemark() async {
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder);
@@ -188,4 +166,24 @@ class MapController with ChangeNotifier {
     notifyListeners();
   }
 
+}
+
+class TimerController {
+  late Timer _timer;
+
+  final _controller = StreamController<int>();
+
+  Stream<int> get getTime => _controller.stream;
+  int get getLastTime => _timer.tick;
+
+  void start() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _controller.sink.add(timer.tick);
+    });
+  }
+
+  void dispose() {
+    _timer.cancel();
+    _controller.close();
+  }
 }

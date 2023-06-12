@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
+import 'package:meet_the_people/business_logic/cubit/event_cubit/event_cubit.dart';
 import 'package:meet_the_people/business_logic/cubit/map_cubit/map_cubit.dart';
+import 'package:meet_the_people/business_logic/cubit/people_cubit/people_cubit.dart';
 import 'package:meet_the_people/business_logic/cubit/profile_cubit/profile_cubit.dart';
 import 'package:meet_the_people/business_logic/services/location_service.dart';
 
@@ -25,6 +27,12 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<ProfileCubit>(
         () => ProfileCubit(),
+  );
+  sl.registerLazySingleton<PeopleCubit>(
+        () => PeopleCubit(),
+  );
+  sl.registerLazySingleton<EventCubit>(
+        () => EventCubit(),
   );
   sl.registerLazySingleton<MapCubit>(
         () => MapCubit(),

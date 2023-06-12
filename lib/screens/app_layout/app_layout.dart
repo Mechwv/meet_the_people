@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meet_the_people/business_logic/cubit/people_cubit/people_cubit.dart';
 import 'package:meet_the_people/screens/map/map.dart';
 
 import '../../business_logic/cubit/profile_cubit/profile_cubit.dart';
@@ -36,6 +37,10 @@ class _AppLayoutState extends State<AppLayout> {
       providers: [
         BlocProvider(
           create: (context) => sl<ProfileCubit>()..getProfileInfo(),
+          lazy: false,
+        ),
+        BlocProvider(
+          create: (context) => sl<PeopleCubit>()..getPeopleNear(),
           lazy: false,
         ),
       ],
