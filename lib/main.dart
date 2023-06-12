@@ -40,7 +40,7 @@ class _MyAppState extends State<MyApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => sl<GlobalCubit>(),
+          create: (context) => sl<GlobalCubit>()..initSetup(),
         ),
         BlocProvider(
           create: (context) => sl<ProfileCubit>(),

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:ui' as ui;
 
 import '../business_logic/cubit/global_cubit/global_cubit.dart';
@@ -166,6 +167,14 @@ Future<Uint8List> getBytesFromAsset(String path, double width) async {
   return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
       .buffer
       .asUint8List();
+}
+
+List<String> uuidGen(int size) {
+  List<String> uuids = [];
+  for (var i=0; i < size; i++) {
+    uuids.add(Uuid().v4());
+  }
+  return uuids;
 }
 
 Future multipartConvertImage({
