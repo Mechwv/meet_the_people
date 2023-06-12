@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:meet_the_people/business_logic/cubit/global_cubit/global_cubit.dart';
 import 'package:meet_the_people/business_logic/cubit/people_cubit/people_cubit.dart';
 import 'package:meet_the_people/business_logic/services/location_service.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 import '../../../constants/constant_methods.dart';
@@ -23,8 +24,9 @@ class MapController with ChangeNotifier {
       MapAnimation(type: MapAnimationType.smooth, duration: 1.0);
   final List<Point> points = [];
   final _fixedOpacity = 0.95;
+  final timerController = TimerController();
 
-  final List<Point> people = [
+   List<Point> people = [
     Point(latitude: 55.63250623928817, longitude: 37.41819001867677),
     Point(latitude: 55.626336887387964,longitude:  37.41919146329349),
     Point(latitude: 55.62370843001374, longitude: 37.42099970440077),
@@ -38,6 +40,9 @@ class MapController with ChangeNotifier {
     _controller = controller;
     _getPosition();
     _fetchPosition();
+    Future.delayed(const Duration(seconds: 2), () {
+      timerController.start();
+    });
   }
 
   void _fetchPosition() {
@@ -133,10 +138,16 @@ class MapController with ChangeNotifier {
       );
     });
     final res = await Future.wait(list);
-    res.forEach((element) {
-      print(element.mapId);
-    });
+    // res.forEach((element) {
+    //   print(element.mapId);
+    // });
     _objectsList.addAll(res);
+  }
+
+  void _movePeople() {
+    print("MOVING FOR TIME ${timerController.getLastTime}");
+    people[0] = timerController.getLomonosov;
+    people[1] = timerController.getTesla;
   }
 
   Future<Uint8List> _rawPositionPlacemark() async {
@@ -207,6 +218,9 @@ class MapController with ChangeNotifier {
     _updatePositionRadius();
     _populateMap();
     notifyListeners();
+    if (timerController.getLastTime < 11) {
+      _movePeople();
+    }
   }
 }
 
@@ -214,14 +228,21 @@ class TimerController {
   late Timer _timer;
 
   final _controller = StreamController<int>();
+  final _teslaController = BehaviorSubject<Point>();
+  final _lomonosovController = BehaviorSubject<Point>();
 
   Stream<int> get getTime => _controller.stream;
+
+  Point get getTesla => _teslaController.value;
+  Point get getLomonosov => _lomonosovController.value;
 
   int get getLastTime => _timer.tick;
 
   void start() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
       _controller.sink.add(timer.tick);
+      _teslaController.sink.add(sl<PeopleCubit>().teslaMovement[timer.tick]);
+      _lomonosovController.sink.add(sl<PeopleCubit>().lomonosovMovement[timer.tick]);
     });
   }
 
