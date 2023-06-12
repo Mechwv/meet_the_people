@@ -6,7 +6,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
+import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'dart:ui' as ui;
+import 'dart:io';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import '../business_logic/cubit/global_cubit/global_cubit.dart';
 import '../data/di/di.dart';
@@ -152,7 +155,6 @@ Future<Position> backgroundLocationPermission() async {
   return position;
 }
 
-
 extension DateOnlyCompare on DateTime {
   bool isSameDate(DateTime other) {
     return year == other.year && month == other.month && day == other.day;
@@ -171,7 +173,7 @@ Future<Uint8List> getBytesFromAsset(String path, double width) async {
 
 List<String> uuidGen(int size) {
   List<String> uuids = [];
-  for (var i=0; i < size; i++) {
+  for (var i = 0; i < size; i++) {
     uuids.add(Uuid().v4());
   }
   return uuids;
@@ -196,4 +198,57 @@ Future<XFile?> pickImage(ImageSource source) async {
 
 Color darkOrLightColor(Color lightColor, Color darkColor) {
   return sl<GlobalCubit>().isLightTheme ? lightColor : darkColor;
+}
+
+Future<BitmapDescriptor> downloadResizePictureCircle(
+  String imageUrl, {
+  int size = 150,
+  bool addBorder = false,
+  Color borderColor = Colors.white,
+  double borderSize = 10,
+}) async {
+  final File imageFile = await DefaultCacheManager().getSingleFile(imageUrl);
+
+  final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+  final Canvas canvas = Canvas(pictureRecorder);
+  final Paint paint = Paint()..color;
+
+  final double radius = size / 2;
+
+  //make canvas clip path to prevent image drawing over the circle
+  final Path clipPath = Path();
+  clipPath.addRRect(RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.toDouble(), size.toDouble()),
+      Radius.circular(100)));
+/* clipPath.addRRect(RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, size * 8 / 10, size.toDouble(), size * 3 / 10),
+        Radius.circular(100))); */
+  canvas.clipPath(clipPath);
+
+  //paintImage
+  final Uint8List imageUint8List = await imageFile.readAsBytes();
+  final ui.Codec codec = await ui.instantiateImageCodec(imageUint8List);
+  final ui.FrameInfo imageFI = await codec.getNextFrame();
+  paintImage(
+      fit: BoxFit.cover,
+      alignment: Alignment.center,
+      canvas: canvas,
+      rect: Rect.fromLTWH(0, 0, size.toDouble(), size.toDouble()),
+      image: imageFI.image);
+
+  if (addBorder) {
+  //draw Border
+    paint..color = borderColor;
+    paint..style = PaintingStyle.stroke;
+    paint..strokeWidth = borderSize;
+    canvas.drawCircle(Offset(radius, radius), radius, paint);
+  }
+
+//convert canvas as PNG bytes
+  final _image =
+      await pictureRecorder.endRecording().toImage(size, (size * 1.1).toInt());
+  final data = await _image.toByteData(format: ui.ImageByteFormat.png);
+
+//convert PNG bytes as BitmapDescriptor
+  return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
 }

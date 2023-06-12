@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:meet_the_people/business_logic/services/location_service.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
+import '../../../constants/constant_methods.dart';
 import '../../../data/di/di.dart';
 
 class MapController with ChangeNotifier {
@@ -16,7 +17,7 @@ class MapController with ChangeNotifier {
   static const double _fixedZoom = 13.5;
   static const double _fixedRadius = 1500;
   static const animation =
-  MapAnimation(type: MapAnimationType.smooth, duration: 1.0);
+      MapAnimation(type: MapAnimationType.smooth, duration: 1.0);
   final List<Point> points = [];
 
   get mapObjects => _objectsList;
@@ -68,8 +69,19 @@ class MapController with ChangeNotifier {
       mapId: _posId,
       point: points.last,
       opacity: 0.75,
-      icon: PlacemarkIcon.single(PlacemarkIconStyle(
-          image: BitmapDescriptor.fromBytes(await _rawPositionPlacemark()))),
+      icon: PlacemarkIcon.single(
+        PlacemarkIconStyle(
+          image: await downloadResizePictureCircle(
+              'https://i1.sndcdn.com/avatars-000290781095-i22idu-t240x240.jpg',
+              size: 110,
+              addBorder: true,
+              borderColor: Colors.white,
+              borderSize: 10),
+        ),
+      ),
+      //     image: BitmapDescriptor.fromBytes(await _rawPositionPlacemark()))),
+      onTap: (PlacemarkMapObject self, Point point) =>
+          print('Tapped me at $point'),
     );
     _objectsList.add(placemark);
     print("_END_INIT_POS");
@@ -82,13 +94,12 @@ class MapController with ChangeNotifier {
     _objectsList.add(createSearchRadius());
   }
 
-
   void _updatePositionMark() async {
     if (!_objectsList.any((el) => el.mapId == _posId)) {
       return;
     }
     final placemark = _objectsList.firstWhere((el) => el.mapId == _posId)
-    as PlacemarkMapObject;
+        as PlacemarkMapObject;
     _objectsList[_objectsList.indexOf(placemark)] = placemark.copyWith(
       point: points.last,
     );
@@ -98,14 +109,14 @@ class MapController with ChangeNotifier {
     if (!_objectsList.any((el) => el.mapId == _radId)) {
       return;
     }
-    final placemark = _objectsList.firstWhere((el) => el.mapId == _radId)
-    as CircleMapObject;
+    final placemark =
+        _objectsList.firstWhere((el) => el.mapId == _radId) as CircleMapObject;
     _objectsList[_objectsList.indexOf(placemark)] = placemark.copyWith(
-      circle: Circle(
-          center: Point(latitude: points.last.latitude, longitude: points.last.longitude),
-          radius: _fixedRadius
-      )
-    );
+        circle: Circle(
+            center: Point(
+                latitude: points.last.latitude,
+                longitude: points.last.longitude),
+            radius: _fixedRadius));
   }
 
   Future<Uint8List> _rawPositionPlacemark() async {
@@ -126,13 +137,13 @@ class MapController with ChangeNotifier {
     canvas.drawCircle(circleOffset, radius, fillPaint);
     canvas.drawCircle(circleOffset, radius, strokePaint);
 
-    final image = await recorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
+    final image = await recorder
+        .endRecording()
+        .toImage(size.width.toInt(), size.height.toInt());
     final pngBytes = await image.toByteData(format: ImageByteFormat.png);
 
     return pngBytes!.buffer.asUint8List();
   }
-
-
 
   Future<PlacemarkMapObject> createUserMark() async {
     final placemark = PlacemarkMapObject(
@@ -151,11 +162,12 @@ class MapController with ChangeNotifier {
       mapId: _radId,
       circle: Circle(
           center: Point(latitude: 55.781863, longitude: 37.451159),
-          radius: _fixedRadius
-      ),
+          radius: _fixedRadius),
       strokeColor: Colors.blue[700]!,
       strokeWidth: 0,
-      fillColor: Color.fromRGBO(0,111,253,0.17),
+      fillColor: Color.fromRGBO(0, 111, 253, 0.17),
+      onTap: (CircleMapObject self, Point point) =>
+          print('Tapped circle at $point'),
     );
     return placemark;
   }
@@ -165,7 +177,6 @@ class MapController with ChangeNotifier {
     _updatePositionRadius();
     notifyListeners();
   }
-
 }
 
 class TimerController {
@@ -174,6 +185,7 @@ class TimerController {
   final _controller = StreamController<int>();
 
   Stream<int> get getTime => _controller.stream;
+
   int get getLastTime => _timer.tick;
 
   void start() {

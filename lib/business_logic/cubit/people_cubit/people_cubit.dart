@@ -20,4 +20,7 @@ class PeopleCubit extends Cubit<PeopleState> {
     emit(PeopleLoadSuccess());
   }
 
+  void getCoordinates() async {
+
+  }
 }
