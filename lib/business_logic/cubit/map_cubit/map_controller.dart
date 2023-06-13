@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:meet_the_people/business_logic/cubit/global_cubit/global_cubit.dart';
+import 'package:meet_the_people/business_logic/cubit/map_cubit/map_cubit.dart';
 import 'package:meet_the_people/business_logic/cubit/people_cubit/people_cubit.dart';
 import 'package:meet_the_people/business_logic/services/location_service.dart';
 import 'package:rxdart/rxdart.dart';
@@ -25,6 +27,14 @@ class MapController with ChangeNotifier {
   final List<Point> points = [];
   final _fixedOpacity = 0.95;
   final timerController = TimerController();
+
+  final List<BicycleSessionResult> results = [];
+
+  MapObjectId? chosenObject;
+
+  BicycleResultWithSession? resultWithSession;
+
+
 
    List<Point> people = [
     Point(latitude: 55.63250623928817, longitude: 37.41819001867677),
@@ -134,7 +144,12 @@ class MapController with ChangeNotifier {
           opacity: _fixedOpacity,
           mapId: MapObjectId(sl<GlobalCubit>().uuids[i]),
           point: people[i],
-        icon: await _createAvatar(sl<PeopleCubit>().peopleNear[i].avatar)
+          icon: await _createAvatar(sl<PeopleCubit>().peopleNear[i].avatar),
+          onTap: (PlacemarkMapObject self, Point point) {
+            chosenObject = self.mapId;
+            sl<MapCubit>().openSlider();
+            // _requestRoutes(point);
+          }
       );
     });
     final res = await Future.wait(list);
@@ -207,8 +222,10 @@ class MapController with ChangeNotifier {
       strokeColor: Colors.blue[700]!,
       strokeWidth: 0,
       fillColor: Color.fromRGBO(0, 111, 253, 0.17),
-      onTap: (CircleMapObject self, Point point) =>
-          print('Tapped circle at $point'),
+      onTap: (CircleMapObject self, Point point) {
+        print('Tapped circle at $point');
+        // sl<MapCubit>().closeSlider();
+      }
     );
     return placemark;
   }
@@ -222,6 +239,29 @@ class MapController with ChangeNotifier {
       _movePeople();
     }
   }
+
+  Future<void> _requestRoutes(Point resultPoint) async {
+
+    resultWithSession = YandexBicycle.requestRoutes(
+        bicycleVehicleType: BicycleVehicleType.bicycle,
+        points: [
+          RequestPoint(point: points.last, requestPointType: RequestPointType.wayPoint),
+          RequestPoint(point: resultPoint, requestPointType: RequestPointType.wayPoint),
+        ]
+    );
+    final res = await resultWithSession?.result;
+
+    res?.routes!.asMap().forEach((i, route) {
+      mapObjects.add(PolylineMapObject(
+        mapId: MapObjectId('route_${i}_polyline'),
+        polyline: Polyline(points: route.geometry),
+        strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+        strokeWidth: 3,
+      ));
+    });
+  }
+
+
 }
 
 class TimerController {

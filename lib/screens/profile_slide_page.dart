@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:meet_the_people/business_logic/cubit/map_cubit/map_cubit.dart';
 import 'package:meet_the_people/styles/colors.dart' as colors;
 import 'package:sizer/sizer.dart';
 
+import '../data/di/di.dart';
 import '../styles/colors.dart';
 import '../widgets/other/default_cached_network_image.dart';
 import '../widgets/other/default_list_tile.dart';
@@ -21,7 +23,9 @@ class _SlideProfileState extends State<SlideProfile> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(height: 8,),
+        SizedBox(
+          height: 8,
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -33,7 +37,11 @@ class _SlideProfileState extends State<SlideProfile> {
                   fontSize: 32.0,
                 ),
               ),
-            )
+            ),
+            IconButton(onPressed: () {
+              sl<MapCubit>().closeSlider();
+
+            }, icon: Icon(Icons.close)),
           ],
         ),
         const HorizontalDivider(),
@@ -55,7 +63,8 @@ class _SlideProfileState extends State<SlideProfile> {
                   child: DefaultCachedNetworkImage(
                     padding: 8.sp,
                     iconSize: 50.sp,
-                    imageUrl:  "https://cdn.culture.ru/images/0b926ae7-2a2b-5e67-acbb-1867b42b890f",
+                    imageUrl:
+                        "https://cdn.culture.ru/images/0b926ae7-2a2b-5e67-acbb-1867b42b890f",
                     fit: BoxFit.fitWidth,
                   ),
                 ),
@@ -86,7 +95,9 @@ class _SlideProfileState extends State<SlideProfile> {
             trailingIcon: Icons.arrow_forward_outlined,
           ),
         ),
-        SizedBox(height: 16,),
+        SizedBox(
+          height: 16,
+        ),
         ElevatedButton.icon(
           onPressed: () {},
           icon: Icon(Icons.edit),

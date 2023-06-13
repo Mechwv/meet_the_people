@@ -45,96 +45,94 @@ class _OtpPageState extends State<OtpPage> {
         body: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 20),
-                    SvgPicture.asset(
-                      'assets/images/OTP.svg',
-                      width: 300,
-                      height: 300,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 20),
+                  SvgPicture.asset(
+                    'assets/images/OTP.svg',
+                    width: 300,
+                    height: 300,
+                  ),
+                  SizedBox(height: 24),
+                  const Text(
+                    'Добро пожаловать!',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      fontFamily: 'Montserrat',
                     ),
-                    SizedBox(height: 24),
-                    const Text(
-                      'Добро пожаловать!',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        fontFamily: 'Montserrat',
+                  ),
+                  SizedBox(height: 24),
+                  const Text(
+                    'Вам будет отправлен одноразовый пароль на указанный номер телефона для входа',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontFamily: 'Montserrat',
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 8),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.black,
+                          width: 2,
+                        ),
                       ),
                     ),
-                    SizedBox(height: 24),
-                    const Text(
-                      'Вам будет отправлен одноразовый пароль на указанный номер телефона для входа',
-                      style: TextStyle(
-                        fontSize: 15,
+                    child: TextField(
+                      controller: _phoneNumberController,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                         fontFamily: 'Montserrat',
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
                       ),
                       textAlign: TextAlign.center,
+                      keyboardType: TextInputType.phone,
+                      autocorrect: false,
+                      inputFormatters: [
+                        MaskedInputFormatter('+# (###) ###-##-##')
+                      ],
                     ),
-                    SizedBox(height: 8),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.black,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      child: TextField(
-                        controller: _phoneNumberController,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          fontFamily: 'Montserrat',
-                        ),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                        ),
-                        textAlign: TextAlign.center,
-                        keyboardType: TextInputType.phone,
-                        autocorrect: false,
-                        inputFormatters: [
-                          MaskedInputFormatter('+# (###) ###-##-##')
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 24),
-                    BlocConsumer<MessageSendCubit, MessageSendState>(
-                      listener: (context, state) async {
-                        if (state is MessageSendSuccess) {
-                          await Future.delayed(const Duration(seconds: 2), () {
-                            Navigator.pushReplacementNamed(
-                                context, otpVerificationRoute);
-                          });
-                        }
-                      },
-                      builder: (context, state) {
-                        if (state is MessageSendSuccess) {
-                          return DefaultLoadingIndicator();
-                        } else {
-                          return ElevatedButton(
-                            onPressed: () {
-                             messageSendCubit.send();
-                            },
-                            child: Text('Получить код'),
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 12),
+                  ),
+                  SizedBox(height: 24),
+                  BlocConsumer<MessageSendCubit, MessageSendState>(
+                    listener: (context, state) async {
+                      if (state is MessageSendSuccess) {
+                        await Future.delayed(const Duration(seconds: 2), () {
+                          Navigator.pushReplacementNamed(
+                              context, otpVerificationRoute);
+                        });
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is MessageSendSuccess) {
+                        return DefaultLoadingIndicator();
+                      } else {
+                        return ElevatedButton(
+                          onPressed: () {
+                           messageSendCubit.send();
+                          },
+                          child: Text('Получить код'),
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
           ),

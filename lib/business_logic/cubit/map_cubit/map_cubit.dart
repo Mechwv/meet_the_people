@@ -15,4 +15,12 @@ import '../../../data/di/di.dart';
 
 class MapCubit extends Cubit<MapState> {
   MapCubit(): super(MapInitial());
+
+  void openSlider(){
+    emit(MapObjectChosen());
+  }
+
+  void closeSlider() {
+    emit(MapInitial());
+  }
 }

@@ -5,3 +5,5 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 abstract class MapState {}
 
 class MapInitial extends MapState {}
+
+class MapObjectChosen extends MapState {}
