@@ -53,7 +53,7 @@ class _MapPageState extends State<MapPage> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(bottom: _fabHeight ?? 32.0 , right: 16.0),
+                      padding: EdgeInsets.only(bottom: _fabHeight ?? 64.0 , right: 16.0),
                       child: FloatingActionButton(
                         onPressed: model.moveCameraOnUser,
                         child:

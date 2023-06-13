@@ -66,7 +66,7 @@ class _SlideProfileState extends State<SlideProfile> {
         InkWell(
           onTap: () {},
           child: const DefaultListTile(
-            title: 'Пригласить друзей',
+            title: 'Отправить запрос в друзья',
             trailingIcon: Icons.person_add,
           ),
         ),
@@ -74,16 +74,29 @@ class _SlideProfileState extends State<SlideProfile> {
         InkWell(
           onTap: () {},
           child: const DefaultListTile(
-            title: 'Настройки',
-            trailingIcon: Icons.settings,
+            title: 'Проложить маршрут',
+            trailingIcon: Icons.location_on,
           ),
         ),
         const HorizontalDivider(),
         InkWell(
           onTap: () {},
           child: const DefaultListTile(
-            title: 'Информация о приложении',
-            trailingIcon: Icons.info,
+            title: 'Перейти в профиль',
+            trailingIcon: Icons.arrow_forward_outlined,
+          ),
+        ),
+        SizedBox(height: 16,),
+        ElevatedButton.icon(
+          onPressed: () {},
+          icon: Icon(Icons.edit),
+          label: Text('Напиши мне'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colors.defaultAppColor4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           ),
         ),
       ],

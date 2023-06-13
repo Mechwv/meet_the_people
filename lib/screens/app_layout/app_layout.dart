@@ -51,15 +51,15 @@ class _AppLayoutState extends State<AppLayout> {
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.map),
-              label: 'Map',
+              label: 'Карта',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.chat),
-              label: 'Chat',
+              label: 'Чат',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
-              label: 'Profile',
+              label: 'Профиль',
             ),
           ],
           currentIndex: _selectedIndex,
