@@ -7,3 +7,7 @@ abstract class MapState {}
 class MapInitial extends MapState {}
 
 class MapObjectChosen extends MapState {}
+
+class MapPathBuilt extends MapState {}
+
+class MapPathFinished extends MapState {}

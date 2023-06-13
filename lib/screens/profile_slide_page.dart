@@ -81,7 +81,9 @@ class _SlideProfileState extends State<SlideProfile> {
         ),
         const HorizontalDivider(),
         InkWell(
-          onTap: () {},
+          onTap: () {
+            sl<MapCubit>().buildPath();
+          },
           child: const DefaultListTile(
             title: 'Проложить маршрут',
             trailingIcon: Icons.location_on,

@@ -29,7 +29,7 @@ class _MapPageState extends State<MapPage> {
   final PanelController panelController = PanelController();
 
   final double _initFabHeight = 70.0;
-  double? _fabHeight = null;
+  double _fabHeight = 64.0;
   double _panelHeightOpen = 0;
   double _panelHeightClosed = 95.0;
 
@@ -51,23 +51,6 @@ class _MapPageState extends State<MapPage> {
                 Stack(
                   alignment: AlignmentDirectional.bottomEnd,
                   children: [
-                    BlocConsumer<MapCubit, MapState>(
-                      listener: (context, state) {
-                        if (state is MapObjectChosen) {
-                          setState(() {
-                            _minHeight = 50.0;
-                            panelController.show();
-                          });
-                        } else {
-                          setState(() {
-                            panelController.hide();
-                          });
-                        }
-                      },
-                      builder: (context, state) {
-                       return SizedBox(height: 0,);
-                      },
-                    ),
                     SlidingUpPanel(
                       controller: panelController,
                       panel: SlideProfile(),
@@ -86,9 +69,45 @@ class _MapPageState extends State<MapPage> {
                         onMapCreated: model.onMapCreated,
                       ),
                     ),
+                    BlocConsumer<MapCubit, MapState>(
+                      listener: (context, state) {
+                        if (state is MapObjectChosen) {
+                          setState(() {
+                            _minHeight = 50.0;
+                            panelController.show();
+                          });
+                        } else if (state is MapInitial) {
+                          setState(() {
+                            panelController.hide();
+                          });
+                        } else if (state is MapPathBuilt) {
+                          _controller.requestRoutes();
+                        } else if (state is MapPathFinished) {
+                          _controller.cleanRoutes();
+                        }
+                      },
+                      builder: (context, state) {
+                        if (state is MapPathBuilt) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                bottom: _fabHeight + 64, right: 16.0),
+                            child: FloatingActionButton(
+                              onPressed: () => sl<MapCubit>().removePath(),
+                              child: Icon(
+                                Icons.close,
+                                color: Colors.white,
+                              ),
+                            ),
+                          );
+                        }
+                        else {
+                          return SizedBox(height: 0,);
+                        }
+                      },
+                    ),
                     Padding(
                       padding: EdgeInsets.only(
-                          bottom: _fabHeight ?? 64.0, right: 16.0),
+                          bottom: _fabHeight, right: 16.0),
                       child: FloatingActionButton(
                         onPressed: model.moveCameraOnUser,
                         child: Icon(

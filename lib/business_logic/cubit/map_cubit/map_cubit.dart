@@ -23,4 +23,12 @@ class MapCubit extends Cubit<MapState> {
   void closeSlider() {
     emit(MapInitial());
   }
+
+  void buildPath(){
+    emit(MapPathBuilt());
+  }
+
+  void removePath(){
+    emit(MapPathFinished());
+  }
 }

@@ -8,6 +8,7 @@ import 'package:meet_the_people/business_logic/cubit/global_cubit/global_cubit.d
 import 'package:meet_the_people/business_logic/cubit/map_cubit/map_cubit.dart';
 import 'package:meet_the_people/business_logic/cubit/people_cubit/people_cubit.dart';
 import 'package:meet_the_people/business_logic/services/location_service.dart';
+import 'package:meet_the_people/constants/constants.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
@@ -31,14 +32,13 @@ class MapController with ChangeNotifier {
   final List<BicycleSessionResult> results = [];
 
   MapObjectId? chosenObject;
+  Point? chosenPoint;
 
   BicycleResultWithSession? resultWithSession;
 
-
-
-   List<Point> people = [
+  List<Point> people = [
     Point(latitude: 55.63250623928817, longitude: 37.41819001867677),
-    Point(latitude: 55.626336887387964,longitude:  37.41919146329349),
+    Point(latitude: 55.626336887387964, longitude: 37.41919146329349),
     Point(latitude: 55.62370843001374, longitude: 37.42099970440077),
     Point(latitude: 55.62318901952856, longitude: 37.42166034441598),
     Point(latitude: 55.62306703576079, longitude: 37.42300944086804),
@@ -50,9 +50,6 @@ class MapController with ChangeNotifier {
     _controller = controller;
     _getPosition();
     _fetchPosition();
-    Future.delayed(const Duration(seconds: 2), () {
-      timerController.start();
-    });
   }
 
   void _fetchPosition() {
@@ -70,6 +67,7 @@ class MapController with ChangeNotifier {
 
   void moveCameraOnUser() {
     _moveCamera(lat: points.last.latitude, long: points.last.longitude);
+    timerController.start();
   }
 
   void _moveCamera({required double lat, required double long}) {
@@ -147,10 +145,10 @@ class MapController with ChangeNotifier {
           icon: await _createAvatar(sl<PeopleCubit>().peopleNear[i].avatar),
           onTap: (PlacemarkMapObject self, Point point) {
             chosenObject = self.mapId;
+            chosenPoint = point;
             sl<MapCubit>().openSlider();
             // _requestRoutes(point);
-          }
-      );
+          });
     });
     final res = await Future.wait(list);
     // res.forEach((element) {
@@ -163,6 +161,14 @@ class MapController with ChangeNotifier {
     print("MOVING FOR TIME ${timerController.getLastTime}");
     people[0] = timerController.getLomonosov;
     people[1] = timerController.getTesla;
+
+    if (chosenObject == MapObjectId(sl<GlobalCubit>().uuids[0])) {
+      chosenPoint = people[0];
+    }
+
+    if (chosenObject == MapObjectId(sl<GlobalCubit>().uuids[1])) {
+      chosenPoint = people[1];
+    }
   }
 
   Future<Uint8List> _rawPositionPlacemark() async {
@@ -215,18 +221,17 @@ class MapController with ChangeNotifier {
 
   CircleMapObject createSearchRadius() {
     final placemark = CircleMapObject(
-      mapId: _radId,
-      circle: Circle(
-          center: Point(latitude: 55.781863, longitude: 37.451159),
-          radius: _fixedRadius),
-      strokeColor: Colors.blue[700]!,
-      strokeWidth: 0,
-      fillColor: Color.fromRGBO(0, 111, 253, 0.17),
-      onTap: (CircleMapObject self, Point point) {
-        print('Tapped circle at $point');
-        // sl<MapCubit>().closeSlider();
-      }
-    );
+        mapId: _radId,
+        circle: Circle(
+            center: Point(latitude: 55.781863, longitude: 37.451159),
+            radius: _fixedRadius),
+        strokeColor: Colors.blue[700]!,
+        strokeWidth: 0,
+        fillColor: Color.fromRGBO(0, 111, 253, 0.17),
+        onTap: (CircleMapObject self, Point point) {
+          print('Tapped circle at $point');
+          // sl<MapCubit>().closeSlider();
+        });
     return placemark;
   }
 
@@ -235,33 +240,51 @@ class MapController with ChangeNotifier {
     _updatePositionRadius();
     _populateMap();
     notifyListeners();
-    if (timerController.getLastTime < 11) {
+    if (timerController.getLastTime < 10) {
       _movePeople();
+      requestRoutes();
     }
   }
 
-  Future<void> _requestRoutes(Point resultPoint) async {
+  Future<void> requestRoutes() async {
+    print("CALCULATING PATH");
+    if (chosenPoint != null) {
+      resultWithSession = YandexBicycle.requestRoutes(
+          bicycleVehicleType: BicycleVehicleType.bicycle,
+          points: [
+            RequestPoint(
+                point: points.last,
+                requestPointType: RequestPointType.wayPoint),
+            RequestPoint(
+                point: chosenPoint!,
+                requestPointType: RequestPointType.wayPoint),
+          ]);
+      final res = await resultWithSession?.result;
 
-    resultWithSession = YandexBicycle.requestRoutes(
-        bicycleVehicleType: BicycleVehicleType.bicycle,
-        points: [
-          RequestPoint(point: points.last, requestPointType: RequestPointType.wayPoint),
-          RequestPoint(point: resultPoint, requestPointType: RequestPointType.wayPoint),
-        ]
-    );
-    final res = await resultWithSession?.result;
+      cleanRoutes();
 
-    res?.routes!.asMap().forEach((i, route) {
-      mapObjects.add(PolylineMapObject(
-        mapId: MapObjectId('route_${i}_polyline'),
-        polyline: Polyline(points: route.geometry),
-        strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
-        strokeWidth: 3,
-      ));
-    });
+      res?.routes!.asMap().forEach((i, route) {
+        mapObjects.add(PolylineMapObject(
+          mapId: MapObjectId('route_${i}_polyline'),
+          polyline: Polyline(points: route.geometry),
+          strokeColor:
+              Colors.primaries[Random().nextInt(Colors.primaries.length)],
+          strokeWidth: 3,
+        ));
+        if (i == 0) {
+          showToastMsg(msg: "Кратчайший путь: ${route.weight.distance.text}, ${route.weight.time.text}", toastState: ToastStates.success);
+        }
+        print('route_${i}_polyline');
+      });
+    }
   }
 
-
+  void cleanRoutes() {
+    _objectsList.removeWhere((el) => el.mapId == MapObjectId("route_0_polyline"));
+    _objectsList.removeWhere((el) => el.mapId == MapObjectId("route_1_polyline"));
+    _objectsList.removeWhere((el) => el.mapId == MapObjectId("route_2_polyline"));
+    _objectsList.removeWhere((el) => el.mapId == MapObjectId("route_3_polyline"));
+  }
 }
 
 class TimerController {
@@ -274,6 +297,7 @@ class TimerController {
   Stream<int> get getTime => _controller.stream;
 
   Point get getTesla => _teslaController.value;
+
   Point get getLomonosov => _lomonosovController.value;
 
   int get getLastTime => _timer.tick;
@@ -281,8 +305,13 @@ class TimerController {
   void start() {
     _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
       _controller.sink.add(timer.tick);
-      _teslaController.sink.add(sl<PeopleCubit>().teslaMovement[timer.tick]);
-      _lomonosovController.sink.add(sl<PeopleCubit>().lomonosovMovement[timer.tick]);
+      if (_timer.tick < 10) {
+        _teslaController.sink.add(sl<PeopleCubit>().teslaMovement[timer.tick]);
+        _lomonosovController.sink
+            .add(sl<PeopleCubit>().lomonosovMovement[timer.tick]);
+      } else {
+        dispose();
+      }
     });
   }
 
