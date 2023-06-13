@@ -88,16 +88,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
               ),
-              // InkWell(
-              //   onTap: () {
-              //     Navigator.pushNamed(context, changePasswordRoute,
-              //         arguments: cubit.auth);
-              //   },
-              //   child: const DefaultListTile(
-              //     title: 'Change Password',
-              //     trailingIcon: Icons.lock,
-              //   ),
-              // ),
               const HorizontalDivider(),
               InkWell(
                 onTap: () {},
